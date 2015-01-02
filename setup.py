@@ -28,6 +28,8 @@ pkg_author = 'Paul Greenberg';
 pkg_author_email = 'paul@greenberg.pro';
 pkg_packages = [pkg_name.lower()];
 pkg_requires = ['lxml', 'requests'];
+pkg_data=['xml/*.xsd','xml/*.wsdl'];
+
 
 with open(path.join(pkg_dir, 'README.rst'), encoding='utf-8') as f:
     pkg_long_description = f.read();
@@ -64,5 +66,8 @@ setup(
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
     ],
     packages=pkg_packages,
+    package_data= {
+        pkg_name.lower() : pkg_data,
+    },
     install_requires=pkg_requires,
 );
