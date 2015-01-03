@@ -31,7 +31,7 @@
 #######################################################################################################
 
 APP_NAME=PyEwsClient
-APP_VERSION=1.1
+APP_VERSION=1.2
 APP_DIR=${APP_NAME}-${APP_VERSION}
 DEV_BACKUP_FILE=$(DEV_BACKUP_DIR)/$(APP_NAME).$(APP_VERSION).backup.`date '+%Y%m%d.%H%M%S'`.tar.gz
 GIT_USER=$(USER)

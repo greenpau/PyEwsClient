@@ -28,9 +28,8 @@ class EWSAttachment:
     '''Represents Microsoft Office 365 EWS Email Attachment Object.'''
 
     def _exit(self, lvl=0):
-        if self.verbose > 0:
-            if self.log:
-                self.show('log');
+        if self.log:
+            self.show('log', 'error');
         if lvl == 1:
             exit(1);
         else:
@@ -56,7 +55,7 @@ class EWSAttachment:
         if t == 'log':
             ''' Display log buffer '''
             for x in self.log:
-                if p == 'error' and self.log[x][level] in ['CRIT', 'ERROR']:
+                if p == 'error' and self.log[x][level] not in ['CRIT', 'ERROR']:
                     continue;
                 print("{0:26s} | {1:s} | {2:s} | {3:s}".format(self.log[x]['ts'],
                                                                self.log[x]['function'],
