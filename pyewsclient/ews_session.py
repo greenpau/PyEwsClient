@@ -38,10 +38,7 @@ class EWSSession:
     def _exit(self, lvl=0):
         if self.verbose > 0:
             if self.log:
-                print('\n'.join(self.log));
-        else:
-            if self.err:
-                print('\n'.join(self.err));
+                self.show('log');
         if lvl == 1:
             exit(1);
         else:

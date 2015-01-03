@@ -20,7 +20,7 @@ from os import path
 
 pkg_dir = path.abspath(path.dirname(__file__));
 pkg_name = 'PyEwsClient';
-pkg_ver = '1.0';
+pkg_ver = '1.1';
 pkg_summary = 'Microsoft Office 365 EWS (Exchange Web Services) Client Library';
 pkg_url = 'https://github.com/greenpau/' + pkg_name;
 pkg_download_url = 'http://pypi.python.org/packages/source/' + pkg_name[0] + '/' + pkg_name + '/' + pkg_name + '-' + pkg_ver + '.tar.gz';
@@ -29,7 +29,6 @@ pkg_author_email = 'paul@greenberg.pro';
 pkg_packages = [pkg_name.lower()];
 pkg_requires = ['lxml', 'requests'];
 pkg_data=['xml/*.xsd','xml/*.wsdl'];
-
 
 with open(path.join(pkg_dir, 'README.rst'), encoding='utf-8') as f:
     pkg_long_description = f.read();
