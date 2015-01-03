@@ -45,6 +45,11 @@ Usage
     documentation:
      https://github.com/greenpau/PyEwsClient
 
+
+
+Office 365 Email Draft
+~~~~~~~~~~~~~~~~~~~~~~
+
 .. figure:: https://raw.githubusercontent.com/greenpau/PyEwsClient/master/images/pyewsclient.1.png
    :alt: Office 365 Email Draft
 
