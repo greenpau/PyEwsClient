@@ -10,6 +10,8 @@ Microsoft Office 365 EWS (Exchange Web Services) Client Library
 Usage
 -----
 
+### Office 365 Email
+
 ```
 usage: ews-email.py [-h] (-s SERVER | --autodiscover) -u USERNAME -p PASSWORD
                     [--to TO] [--cc CC] [--bcc BCC] --subject SUBJECT --body
@@ -70,7 +72,7 @@ documentation:
  https://github.com/greenpau/PyEwsClient
 ```
 
-### Office 365 Email Draft
+### Office 365 Email Draft Screenshot
 
 ![Office 365 Email Draft](https://raw.githubusercontent.com/greenpau/PyEwsClient/master/images/pyewsclient.1.png)
 
