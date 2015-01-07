@@ -30,8 +30,8 @@ except Exception as err:
 def main():
     func = 'main()';
     descr = 'PyEwsClient - Microsoft Office 365 Client Library Testing Tool\n\n';
-    descr += 'examples:\n';
-    descr += ' python3 ' + str(__file__) + ' -u email@office365.com -p password --autodiscover -l 5\n';
+    descr += 'examples: \n \n';
+    descr += ' python3 ' + str(__file__) + ' -u email@office365.com -p password --autodiscover -l 5 \n \n';
     descr += ' python3 ' + str(__file__) + ' -u email@office365.com -p password --autodiscover \ \n';
     descr += '  --to "to1@microsoft.com" --to "to2@microsoft.com" \ \n';
     descr += '  --cc "cc1@microsoft.com" --cc "cc2@microsoft.com" --cc "cc3@microsoft.com" \ \n';
@@ -39,7 +39,7 @@ def main():
     descr += '  --subject "Sample Subject" --body "Sample Body" \ \n';
     descr += '  --format plain --sensitivity "Confidential" \ \n';
     descr += '  --importance "High" --delivery-receipt --read-receipt --mark-read \ \n';
-    descr += '  --attach scripts/attach1.txt --attach scripts/attach2.txt -l 1 \n';
+    descr += '  --attach scripts/attach1.txt --attach scripts/attach2.txt -l 1 \n \n';
     descr += ' python3 ' + str(__file__) + ' --help';
     epil = 'documentation:\n https://github.com/greenpau/PyEwsClient\n\n';
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,description=descr, epilog=epil);
