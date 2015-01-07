@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #------------------------------------------------------------------------------------------#
-# File:      test.py                                                                       #
+# File:      ews-email.py                                                                  #
 # Purpose:   PyEwsClient - Microsoft Office 365 Client Library Testing Tool                #
 # Author:    Paul Greenberg                                                                #
 # Version:   1.0                                                                           #
@@ -31,10 +31,16 @@ def main():
     func = 'main()';
     descr = 'PyEwsClient - Microsoft Office 365 Client Library Testing Tool\n\n';
     descr += 'examples:\n';
-    descr += ' python3 tests/test.py -u email@office365.com -p password --autodiscover -l 5\n';
-    descr += ' python3 tests/test.py -u email@office365.com -p password --autodiscover \ \n';
-    descr += '                       -a tests/attach1.txt -a tests/attach2.txt -l 1 \n';
-    descr += ' python3 tests/test.py --help';
+    descr += ' python3 ' + str(__file__) + ' -u email@office365.com -p password --autodiscover -l 5\n';
+    descr += ' python3 ' + str(__file__) + ' -u email@office365.com -p password --autodiscover \ \n';
+    descr += '  --to "to1@microsoft.com" --to "to2@microsoft.com" \ \n';
+    descr += '  --cc "cc1@microsoft.com" --cc "cc2@microsoft.com" --cc "cc3@microsoft.com" \ \n';
+    descr += '  --bcc "bcc1@microsoft.com" --bcc "bcc2@microsoft.com" \ \n';
+    descr += '  --subject "Sample Subject" --body "Sample Body" \ \n';
+    descr += '  --format plain --sensitivity "Confidential" \ \n';
+    descr += '  --importance "High" --delivery-receipt --read-receipt --mark-read \ \n';
+    descr += '  --attach scripts/attach1.txt --attach scripts/attach2.txt -l 1 \n';
+    descr += ' python3 ' + str(__file__) + ' --help';
     epil = 'documentation:\n https://github.com/greenpau/PyEwsClient\n\n';
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,description=descr, epilog=epil);
     conn_group = parser.add_argument_group('network connectivity arguments');
@@ -45,8 +51,24 @@ def main():
     auth_group.add_argument('-u', '--user', dest='iuser', metavar='USERNAME', type=str, required=True, help='Office 365 Username');
     auth_group.add_argument('-p', '--password', dest='ipass', metavar='PASSWORD', type=str, required=True, help='Office 365 Password');
     mail_group = parser.add_argument_group('email arguments');
-    mail_group.add_argument('-a', '--attachment', dest='iatt', metavar='ATTACHMENT', action='append', type=argparse.FileType('r'), help='Email Attachment(s)');
-    parser.add_argument('-l', '--log-level', dest='ilog', metavar='LOG_LEVEL', type=int, default=0, choices=range(1, 6), help='log level (default: 0)');
+    mail_group.add_argument('--to', dest='ito', metavar='TO', action='append', type=str, help='Email Receipient(s) To:');
+    mail_group.add_argument('--cc', dest='icc', metavar='CC', action='append', type=str, help='Email Receipient(s) Cc:');
+    mail_group.add_argument('--bcc', dest='ibcc', metavar='BCC', action='append', type=str, help='Email Receipient(s) Bcc:');
+    mail_group.add_argument('--subject', dest='isub', metavar='SUBJECT', type=str, required=True, help='Email Subject');
+    mail_group.add_argument('--body', dest='ibdy', metavar='BODY', type=str, required=True, help='Email Body');
+    mail_group.add_argument('--attach', dest='iatt', metavar='ATTACHMENT', action='append', type=argparse.FileType('r'), help='Email Attachment(s)');
+    mail_group.add_argument('--format', dest='ifmt', metavar='FORMAT', type=str, choices=['plain', 'html'], help='Email Format (plain or html)');
+    mail_group.add_argument('--sensitivity', dest='isns', metavar='LEVEL', type=str, 
+                            choices=['Normal', 'Personal', 'Private', 'Confidential'], required=False, 
+                            help='Email Sensitivity, e.g. Normal, Personal, Private, Confidential');
+    mail_group.add_argument('--importance', dest='iimp', metavar='LEVEL', type=str, 
+                            choices=['High', 'Normal', 'Low'], required=False,
+                            help='Email Importance, e.g. High, Normal, Low');
+    mail_group.add_argument('--delivery-receipt', dest='irqd', action='store_true', help='Request Delivery Receipt');
+    mail_group.add_argument('--read-receipt', dest='irqr', action='store_true', help='Request Read Receipt');
+    mail_group.add_argument('--mark-read', dest='imrd', action='store_true', help='Mark Read');
+
+    parser.add_argument('-l', '--log-level', dest='ilog', metavar='LEVEL', type=int, default=0, choices=range(1, 6), help='log level (default: 0, max: 5)');
     args = parser.parse_args();
 
     try:
@@ -60,18 +82,35 @@ def main():
 
         ''' Step 2: Create email draft object '''
         email = EWSEmail(args.ilog);
-        email.formatting('plain');
+        if args.ifmt is not None:
+            email.formatting(args.ifmt);
+        else:
+            email.formatting('plain');
         email.sender(args.iuser);
-        email.recipients(['to1@microsoft.com', 'to2@microsoft.com']);
-        email.subject('Sample Subject');
-        email.body('Sample Body');
-        email.cc(['cc1@microsoft.com', 'cc2@microsoft.com', 'cc3@microsoft.com']);
-        email.bcc(['bcc1@microsoft.com', 'bcc2@microsoft.com']);
-        email.sensitivity('Private');
-        email.importance('High');
-        email.delivery_receipt('Yes');
-        email.read_receipt('Yes');
-        email.mark_read('No');
+        if args.ito is not None:
+            email.recipients(args.ito);
+        if args.icc is not None:
+            email.cc(args.icc);
+        if args.ibcc is not None:
+            email.bcc(args.ibcc);
+        if args.isub is not None:
+            email.subject(args.isub);
+        if args.ibdy is not None:
+            email.body(args.ibdy);
+        if args.isns is not None:
+            email.sensitivity(args.isns);
+        else:
+            email.sensitivity('Normal');
+        if args.iimp is not None:
+            email.importance(args.iimp);
+        else:
+            email.importance('Normal');
+        if args.irqd:
+            email.delivery_receipt('Yes');
+        if args.irqr:
+            email.read_receipt('Yes');
+        if args.imrd:
+            email.mark_read('No');
         email.finalize();
         if args.ilog > 0: 
             email.show('request');

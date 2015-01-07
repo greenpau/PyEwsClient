@@ -20,7 +20,7 @@ from os import path
 
 pkg_dir = path.abspath(path.dirname(__file__));
 pkg_name = 'PyEwsClient';
-pkg_ver = '1.2';
+pkg_ver = '1.3';
 pkg_summary = 'Microsoft Office 365 EWS (Exchange Web Services) Client Library';
 pkg_url = 'https://github.com/greenpau/' + pkg_name;
 pkg_download_url = 'http://pypi.python.org/packages/source/' + pkg_name[0] + '/' + pkg_name + '/' + pkg_name + '-' + pkg_ver + '.tar.gz';
