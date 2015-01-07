@@ -28,6 +28,8 @@ import base64;
 import http.client, urllib.parse;
 from urllib.parse import urlparse;
 
+from pyewsclient import EWSXmlSchemaValidator;
+
 #sys.path.append(os.path.join('/'.join(os.path.abspath(__file__).split('/')[:-2])));
 #from pyewsclient.ews_helper import EWSHelper;
 
@@ -46,6 +48,8 @@ class EWSSession:
 
     def _log(self, msg='TEST', lvl='INFO'):
         ''' Logging '''
+        if self.verbose < 1 and lvl == 'INFO':
+            return;
         lvls={'DEBUG': 5, 'CRIT': 4, 'ERROR': 3, 'WARN': 2, 'INFO': 1};
         cls = str(type(self).__name__);
         func = str(sys._getframe(1).f_code.co_name);
@@ -63,7 +67,7 @@ class EWSSession:
         if t == 'log':
             ''' Display log buffer '''
             for x in self.log:
-                if p == 'error' and self.log[x][level] not in ['CRIT', 'ERROR']:
+                if p == 'error' and self.log[x]['level'] not in ['CRIT', 'ERROR']:
                     continue;
                 print("{0:26s} | {1:s} | {2:s} | {3:s}".format(self.log[x]['ts'],
                                                                self.log[x]['function'],
@@ -261,48 +265,6 @@ class EWSSession:
         return;
 
 
-    def _ews_xml_schema_checker(self, xmlreq, xmlsch=None):
-        ''' XML Schema Validation '''
-
-        if xmlsch is None:
-            xmlsch = 'xml/messages.xsd';
-        else:
-            xmlsch = 'xml/' + xmlsch;
-
-        if not isinstance(xmlreq, bytes):
-            xmlreq = bytes(xmlreq, 'utf-8');
-        
-        try:
-            msg_schema_xsd = os.path.join('/'.join(os.path.abspath(__file__).split('/')[:-1]), xmlsch);
-            msg_schema = etree.XMLSchema(file=msg_schema_xsd);
-        except Exception as err:
-            self._log(str(err), 'ERROR');
-            self._log(str(traceback.format_exc()), 'ERROR');
-            return 1;
-
-        try:
-            xmlreq_valid = msg_schema.validate(etree.fromstring(xmlreq));
-        except Exception as err:
-            self._log(str(err), 'ERROR');
-            self._log(str(traceback.format_exc()), 'ERROR');
-            xmlreq_valid = False;
-
-        try:
-            msg_schema.assertValid(etree.fromstring(xmlreq));
-        except Exception as err:
-            self._log(str(err), 'WARN');
-            self._log(str(traceback.format_exc()), 'WARN');
-
-        if xmlreq_valid is True:
-            if self.verbose >= 4:
-                self._log('XML document passed XML schema validation', 'INFO');
-            return 0;
-        else:
-            if self.verbose >= 3:
-                self._log('XML document failed XML schema validation', 'WARN');
-            return 1;
-
-
     def _ews_autodiscover(self):
         ''' EWS Autodiscovery 
         URL: autodiscover.outlook.com
@@ -330,7 +292,14 @@ class EWSSession:
 
         autod_req = self._ews_autod_request_builder();
 
-        self._ews_xml_schema_checker(autod_req);
+        exsv = EWSXmlSchemaValidator(autod_req);
+
+        for i in exsv.logs:
+            self._log(str(i[0]), str(i[1]));
+
+        if exsv.valid == False:
+            self._log('failed ews xml schema validation for autodiscovery', 'ERROR');
+            self._exit(1);
 
         autod_url = 'https://autodiscover-s.outlook.com/autodiscover/autodiscover.xml';
         autod_params = urllib.parse.urlencode({'test1': 123456, '@test2': 'test2', '@test3': 'test3'});
@@ -433,7 +402,12 @@ class EWSSession:
 
         autod_headers = self._ews_inject_cookies(autod_headers);
 
-        if self._ews_xml_schema_checker(autod_resp_body, 'autodiscover.response.xsd') == 0:
+        exsv = EWSXmlSchemaValidator(autod_resp_body, 'autodiscover.response.xsd');
+
+        for i in exsv.logs:
+            self._log(i[0], i[1]);
+
+        if exsv.valid == True:
             # EwsUrl point to 'https://outlook.office365.com/EWS/Exchange.asmx'
             # However, it should point to 'https://podXXXXX.outlook.com/EWS/Exchange.asmx'
             self.server = 'https://' + self._ews_urlsplit('host', autod_url) + '/EWS/Exchange.asmx';
@@ -505,7 +479,14 @@ class EWSSession:
             self._log(ews_url + ' does not respond with text-based output', 'ERROR');
             return;
 
-        self._ews_xml_schema_checker(ews_resp_body);
+        exsv = EWSXmlSchemaValidator(ews_resp_body);
+
+        for i in exsv.logs:
+            self._log(i[0], i[1]);
+
+        if exsv.valid == False:
+            self._log('failed ews xml schema validation for ews response', 'ERROR');
+            self._exit(1);
 
         self._ews_xml_response_parser(ews_stage, self.server, str(ews_resp.status), str(ews_resp.reason), ews_resp_body);
         

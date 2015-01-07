@@ -21,6 +21,8 @@ import traceback;
 from lxml import etree;
 import pprint;
 import re;
+from pyewsclient import EWSXmlSchemaValidator;
+#from EWSHelper import _ews_xml_schema_checker;
 
 class EWSEmail:
     '''Represents Microsoft Office 365 EWS Email Draft Object.'''
@@ -54,7 +56,7 @@ class EWSEmail:
         if t == 'log':
             ''' Display log buffer '''
             for x in self.log:
-                if p == 'error' and self.log[x][level] not in ['CRIT', 'ERROR']:
+                if p == 'error' and self.log[x]['level'] not in ['CRIT', 'ERROR']:
                     continue;
                 print("{0:26s} | {1:s} | {2:s} | {3:s}".format(self.log[x]['ts'],
                                                                self.log[x]['function'],
@@ -182,43 +184,6 @@ class EWSEmail:
         xmlb = b'<?xml version="1.0" encoding="utf-8"?>\n' + etree.tostring(DRAFT, pretty_print=True);
         self.xml =  xmlb.decode("utf-8");
         return;
-
-
-    def _ews_schema_checks(self, xmlreq):
-        ''' XML Schema Validation '''
-
-        if not isinstance(xmlreq, bytes):
-            xmlreq = bytes(xmlreq, 'utf-8');
-        
-        try:
-            msg_schema_xsd = os.path.join('/'.join(os.path.abspath(__file__).split('/')[:-1]), 'xml/messages.xsd');
-            msg_schema = etree.XMLSchema(file=msg_schema_xsd);
-        except Exception as err:
-            self._log(str(err), 'CRIT');
-            self._log(str(traceback.format_exc()), 'CRIT');
-            return 1;
-
-        try:
-            xmlreq_valid = msg_schema.validate(etree.fromstring(xmlreq));
-        except Exception as err:
-            self._log(str(err), 'CRIT');
-            self._log(str(traceback.format_exc()), 'CRIT');
-
-        try:
-            msg_schema.assertValid(etree.fromstring(xmlreq));
-        except Exception as err:
-            if self.verbose >= 3:
-                self._log(str(err), 'WARN');
-                self._log(str(traceback.format_exc()), 'WARN');
-
-        if xmlreq_valid is True:
-            if self.verbose >= 4:
-                self._log('SOAP Request is valid', 'INFO');
-            return 0;
-        else:
-            if self.verbose >= 3:
-                self._log('SOAP Request is invalid', 'WARN');
-            return 1;
 
 
     def formatting(self, i):

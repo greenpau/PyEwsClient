@@ -17,9 +17,9 @@
 
 __all__ = ["ews_session", "ews_helper", "ews_email", "ews_attachment"];
 
-from pyewsclient.ews_session     import EWSSession;
-from pyewsclient.ews_helper      import EWSHelper;
-from pyewsclient.ews_email       import EWSEmail;
-from pyewsclient.ews_attachment  import EWSAttachment;
+from pyewsclient.ews_helper import EWSXmlSchemaValidator;
+from pyewsclient.ews_session import EWSSession;
+from pyewsclient.ews_email import EWSEmail;
+from pyewsclient.ews_attachment import EWSAttachment;
 
 

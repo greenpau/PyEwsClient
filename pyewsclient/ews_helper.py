@@ -26,9 +26,51 @@ import pprint;
 import re;
 
 
-class EWSHelper:
-    '''Represents Microsoft Office 365 EWS Helper Funstions.'''
+class EWSXmlSchemaValidator:
+    '''Represents Microsoft Office 365 EWS XML Schema Validation Funstion.'''
 
-    def __init__(self):
+    def __init__(self, xmlreq, xmlsch=None):
+        ''' XML Schema Validation '''
+
+        self.valid = False;
+        self.logs = [];
+
+        if xmlsch is None:
+            xmlsch = 'xml/messages.xsd';
+        else:
+            xmlsch = 'xml/' + xmlsch;
+
+        if not isinstance(xmlreq, bytes):
+            xmlreq = bytes(xmlreq, 'utf-8');
+
+        try:
+            msg_schema_xsd = os.path.join('/'.join(os.path.abspath(__file__).split('/')[:-1]), xmlsch);
+            msg_schema = etree.XMLSchema(file=msg_schema_xsd);
+        except Exception as err:
+            self.logs.append((str(err), 'ERROR'));
+            self.logs.append((str(traceback.format_exc()), 'ERROR'));
+            return;
+
+        try:
+            xmlreq_valid = msg_schema.validate(etree.fromstring(xmlreq));
+            self.valid = True;
+        except Exception as err:
+            self.logs.append((str(err), 'ERROR'));
+            self.logs.append((str(traceback.format_exc()), 'ERROR'));
+            self.valid = False;
+
+        try:
+            msg_schema.assertValid(etree.fromstring(xmlreq));
+            self.valid = True;
+        except Exception as err:
+            self.logs.append((str(err), 'ERROR'));
+            self.logs.append((str(traceback.format_exc()), 'ERROR'));
+            self.valid = False;
+
+        if self.valid is not True:
+            self.logs.append(('XML document failed XML schema validation', 'ERROR'));
+            return;
+
+        self.logs.append(('XML document passed XML schema validation', 'INFO'));
+        self.valid = True;
         return;
-
